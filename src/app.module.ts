@@ -2,7 +2,7 @@
  * @Author: Andrew Q
  * @Date: 2021-11-14 14:21:49
  * @LastEditors: Andrew Q
- * @LastEditTime: 2021-11-16 15:06:26
+ * @LastEditTime: 2021-11-19 15:01:43
  * @Description: test
  */
 import { Module } from '@nestjs/common';
@@ -18,6 +18,7 @@ import { UsersModule } from './users/users.module';
 
 import { envment } from '../config';
 import { TestModule } from './test/test.module';
+import { UploadController } from './module/upload/upload.controller';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { TestModule } from './test/test.module';
     PedantsTypeModule,
     UsersModule,
     TestModule,
+    UploadController,
   ],
   controllers: [AppController],
   providers: [AppService],

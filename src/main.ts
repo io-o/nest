@@ -2,14 +2,15 @@
  * @Author: Andrew Q
  * @Date: 2021-11-09 17:09:49
  * @LastEditors: Andrew Q
- * @LastEditTime: 2021-11-17 15:08:52
+ * @LastEditTime: 2021-11-22 15:08:25
  * @Description:
  */
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { browser } from './browser';
 
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-
+browser();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
 
@@ -25,4 +26,5 @@ async function bootstrap() {
 
   await app.listen(3000);
 }
+
 bootstrap();
