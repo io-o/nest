@@ -2,7 +2,7 @@
  * @Author: Andrew Q
  * @Date: 2021-11-19 15:08:09
  * @LastEditors: Andrew Q
- * @LastEditTime: 2021-11-25 16:56:20
+ * @LastEditTime: 2021-11-29 16:42:58
  * @Description:
  */
 import {
@@ -22,6 +22,8 @@ import { TestService } from './test.service';
 import { CreateTestDto } from './dto/create-test.dto';
 import { UpdateTestDto } from './dto/update-test.dto';
 
+import { getJson } from './helper';
+
 @Controller('test')
 @UseInterceptors(FileInterceptor('file'))
 export class TestController {
@@ -29,6 +31,10 @@ export class TestController {
   public GC: any;
   public excelIO: any;
   public fileA: any;
+  public files: any[];
+  public isEnd: number;
+  public wb2: any;
+
   constructor(private readonly testService: TestService) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const GC = require('@grapecity/spread-sheets');
@@ -44,6 +50,9 @@ export class TestController {
     this.GC = GC;
     this.wb = new GC.Spread.Sheets.Workbook();
     this.excelIO = new GCExcel.IO();
+
+    this.files = [];
+    this.isEnd = 0;
   }
 
   // @Post()
@@ -72,33 +81,65 @@ export class TestController {
   }
 
   @Post('getExcel')
-  getExcel() {
-    return this.fileA;
+  async getExcel() {
+    // if (this.isEnd === 2) {
+    //   return this.wb2;
+    // }
+    console.log(1111);
+
+    const wb2 = new this.GC.Spread.Sheets.Workbook();
+    const res = [];
+    // this.files.forEach(async (file: any) => {
+    //   const data = await getJson(file, this.excelIO, this.GC);
+    //   res.push(data);
+    // });
+
+    for (let i = 0; i < this.files.length; i++) {
+      const data = await getJson(this.files[i], this.excelIO, this.GC);
+      res.push(data);
+    }
+
+    console.log('res', res);
+
+    res.forEach((item) => {
+      console.log(item.getSheet(1).name());
+
+      wb2.addSheet(0, item.getSheet(3));
+    });
+
+    console.log(wb2.toJSON());
+
+    return wb2.toJSON();
+    // this.wb2 = wb2.toJSON();
+    // this.isEnd = 2;
   }
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   uploadFile(@UploadedFile() file) {
-    console.log(file.buffer);
+    // console.log(file.buffer.buffer);
 
-    this.excelIO.open(
-      file.buffer.buffer,
-      (data) => {
-        this.wb.fromJSON(data);
-        const z1 = this.wb.getSheet(5).getStyle(1, 1);
-        // const style = new GC.Spread.Sheets.Style();
-        z1.backColor = 'red';
-        console.log(z1);
+    this.files.push(file.buffer.buffer);
+    // this.getExcel();
+    // this.isEnd = 1;
 
-        this.wb.getSheet(5).setStyle(1, 1, z1);
-        console.log('getStyle', this.wb.getSheet(5).getStyle(1, 1));
-
-        this.fileA = this.wb.toJSON();
-        //console.log(222, data, data.version, data.namedStyles);
-      },
-      function (e) {
-        console.log(1111, e);
-      },
-    );
+    return 'success';
+    // this.excelIO.open(
+    //   file.buffer.buffer,
+    //   (data) => {
+    //     // this.wb.fromJSON(data);
+    //     // const z1 = this.wb.getSheet(5).getStyle(1, 1);
+    //     // // const style = new GC.Spread.Sheets.Style();
+    //     // z1.backColor = 'red';
+    //     // console.log(z1);
+    //     // this.wb.getSheet(5).setStyle(1, 1, z1);
+    //     // console.log('getStyle', this.wb.getSheet(5).getStyle(1, 1));
+    //     // this.fileA = JSON.stringify(this.wb.toJSON());
+    //     //console.log(222, data, data.version, data.namedStyles);
+    //   },
+    //   function (e) {
+    //     console.log(1111, e);
+    //   },
+    // );
   }
 }
